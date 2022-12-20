@@ -65,3 +65,63 @@ $N1N2={n1n2 \space | \space n1\in N1, n2 \in N2}$
 
 陪集(Cosets),
 
+### Modular arithmetic
+
+$${a + kN : k \in Z}$$
+
+任意两个数之间的差都是N的倍数, $a \equiv b$(mod N), 
+
+### Montgometry form
+如果a和b是$[0,N-1]$之间的一个整数, 那么它们的和的范围在$[0, 2N-2]$, 差的范围在$[-N+1, -N-1]$. 将之转化为$[0,N-1]$范围仅需要一次加法或减法。
+
+然而如果是乘法的话, ab 的范围在$[0, N^{2} - 2N + 1]$, 存储中间的整数乘结果需要两倍的空间，a或者b. 有效地将结果重新表示的话需要除法。Euclidean division theorem,
+
+$$ ab = qN + r$$
+
+Montgometry算法就是干这个事情的。选择$R$, 使得$\gcd (R, N) = 1 $, 也需要division, reduction modulo $R$ 是轻量级的，没有那么昂贵。$ R > N $, 
+
+Montgomery form of the residue class a, with respect R is aR mod N, 这就是转换形式, 看起来使问题更加负责了。
+
+以蒙哥马利形式表示的数的乘法需要去除factor of R, 然而division by R is cheap, 
+
+$$ (aR \space mod \space N)(bR \space mod \space N) \space mod \space N = (abR)R \space mod \space N $$
+
+找到一个$R^{'}$,使得 $RR^{'}=1 \space (mod \space N)$, 这样就可以简化计算。
+
+$$ (aR \space mod \space  N)(bR \space mod \space N)R^{'} = (aR)(bR)R^{-1} = (ab)R \space (mod \space N) $$
+
+寻找$R^{'}$，首先它是存在的, R和N互质, extended Euclidean algorithm. Bezout's identity: $$ 0<R^{'} < N, 0 < N^{'} < R $$
+
+$$ RR^{'} - NN^{'} = 1 $$
+
+### Montgomery Reduction
+REDC, 同时计算product by $R^{'}$ , reduces modulo N more quickly than the naive method. Montgomery reduciton focuses on making the number more divisible by $R$. 所有的计算，reduction, division, with respect to $R$, not $N$, 所以这个速度会比直接乘、除的速度会快得多。
+
+reducing t into the desired range requries at most a single subtraction,
+
+### Arithmetic in Montgomery form,
+许多modulo N的操作也可以同样在Montgomery form中操作。这些算术操作包括: Addition, subtraction , negation, comparison for equality, multiplication by an integer not in Montgomery form, greatest common divisors with N man all be done with the standard algorithms. 
+
+The **Jacobi symbol** can be calculated as:
+
+$$
+(\frac a N) = (\frac {aR} N) / (\frac R N) 
+$$
+as long as $(\frac R N) $ is stored.
+
+When R > N, most other arithmetic operations can be expressed in terms of REDC. 
+
+The product of aR mod N and bR mod N is REDC((aR mod N)(bR mod N)), 这个操作被称为Montgomery multiplication.
+
+### 多精度整数的Montgomery arithmetic,
+加密算法使用的数字，成百上千bit长, 无法存储在一个machine word里，那么对这些大数的乘法就需要结合几个小的乘法。一般来说base B会选择2, 
+
+REDC算法需要modulo R的乘法, R> N, 因此有一个REDC的编程中，处理machine word sized integers. 假设positive multi-precision integers ares stored little endian. 
+
+这个算法从一个多精度整数T开始，reduces it one word at a time. 首先an appropriate multiple of N is added to make T divisible by B, a multiple of N is added to make T divisible by $B^{2}$ , 直到T is divisible by $R$, 
+
+
+
+
+
+
